@@ -1,8 +1,8 @@
 import numpy as np
 
 WN_DIR = "/home/asd36952/baseword/WordNet-3.0/"
-#WN_DATA_TYPE = ["verb", "noun", "adv", "adj"]
-WN_DATA_TYPE = ["verb", "adv", "adj"]
+WN_DATA_TYPE = ["verb", "noun", "adv", "adj"]
+#WN_DATA_TYPE = ["verb", "adv", "adj"]
 
 p_drop = 0
 
@@ -21,8 +21,11 @@ class Word_Dictionary():
         return self.word_dict.keys()
 
     def add_word(self, word):
-        if ("_" not in word.word) & (word.word not in word_dict):
-            self.word_dict[word.word] = word
+        if ("_" not in word.word):
+            if (word.word not in word_dict):
+                self.word_dict[word.word] = [word]
+            else:
+                self.word_dict[word.word].append(word)
 
     def generate_concept(self):
         pass
@@ -30,7 +33,6 @@ class Word_Dictionary():
 class Word():
     def __init__(self, data, gloss, word_dict):
         self.parse(data, gloss)
-        self.concept_list = []
 
     def __str__(self):
         return "Word: %s, Type: %s, Gloss: %s" % (self.word, self.ss_type, ";".join(self.gloss))
@@ -39,9 +41,6 @@ class Word():
         self.ss_type = data[2]
         self.word = data[3]
         self.gloss = gloss
-
-    def add_concept(self, concept):
-        self.concept_list.append(concept)
 
 class Concept():
     def __init__(self):
@@ -68,5 +67,6 @@ if __name__ == "__main__":
                     word_dict.add_word(word)
 
     for word in word_dict:
-        print(word_dict[word])
+        for concept in word_dict[word]:
+            print(concept)
         break
