@@ -1,6 +1,6 @@
 import numpy as np
 
-WN_DIR = "/home/asd36952/baseword/WordNet-3.0/"
+WN_DIR = "../WordNet-3.0/"
 WN_DATA_TYPE = ["verb", "noun", "adv", "adj"]
 #WN_DATA_TYPE = ["verb", "adv", "adj"]
 
