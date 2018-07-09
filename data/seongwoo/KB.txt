@@ -1,0 +1,1 @@
+apple   N_Color_red_Shape_circle_Kind_fruit N_Kind_company
