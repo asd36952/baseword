@@ -1,0 +1,11 @@
+stem.txt:
+    stem POS_Attribute_Direction[_Attribute_Direction...] [POS_Attribute_Direction[_Attribute_Direction...]...]
+
+    POS : V(erb)/A(djective)/P(reposition)/E(TC)
+    Direction: L(eft)/R(ight)/B(oth)/O(ne of Both)
+
+word.txt:
+    Word POS_Attribute_Direction[_Attribute_Direction...] [POS_Attribute_Direction[_Attribute_Direction...]...] 
+
+    POS : V(erb)/A(djective)/P(reposition)/E(TC)
+    Direction: L(eft)/R(ight)/B(oth)/O(ne of Both)
