@@ -1,17 +1,18 @@
 import json
 
-with open("../data/train-v2.0.json") as f:
+with open("../data/SQUAD/train-v2.0.json") as f:
     data = json.load(f)
 
-para_list = []
+data_dict = {}
 
-for i in range(len(data['data'])):
-    for j in range(len(data['data'][i]['paragraphs'])):
-        para_list.append(data['data'][i]['paragraphs'][j]['context'])
+for elem in data['data']:
+    data_dict[elem['title']] = []
+    for p in elem['paragraphs']:
+        for qa in p['qas']:
+            print(p['context'])
+            print(qa['question'])
+            print(qa['answers'])
+            input()
 
-para_list = sorted(para_list, key = len)
 
-for elem in para_list:
-    print(elem)
-    print(len(elem))
-    input()
+
