@@ -1,8 +1,8 @@
 import numpy as np
 
 WN_DIR = "../WordNet-3.0/"
-WN_DATA_TYPE = ["verb", "noun", "adv", "adj"]
-#WN_DATA_TYPE = ["verb", "adv", "adj"]
+#WN_DATA_TYPE = ["verb", "noun", "adv", "adj"]
+WN_DATA_TYPE = ["verb", "adv", "adj"]
 
 p_drop = 0
 
@@ -16,17 +16,20 @@ class Stem():
 
 class Stem_Dictionary():
     def __init__(self):
-        self.stem_dict = dict()
         self.concept_dict = dict()
+        self.stem_dict = dict()
 
     def __iter__(self):
         return iter(self.stem_dict)
+
+    def __setitem__(self, key, value):
+        self.stem_dict[key] = value
 
     def __getitem__(self, stem):
         return self.stem_dict[stem]
 
     def keys(self):
-        return self.stem_dict.keys()
+        return sorted(self.stem_dict.keys(), key=lambda x:len(x))
 
     def add_stem(self, stem):
         pass
@@ -36,18 +39,20 @@ class Stem_Dictionary():
 
 class Word_Dictionary():
     def __init__(self, stem_dict):
-        self.word_dict = dict()
-
         self.stem_dict = stem_dict
+        self.word_dict = dict()
 
     def __iter__(self):
         return iter(self.word_dict)
+
+    def __setitem__(self, key, value):
+        self.word_dict[key] = value
 
     def __getitem__(self, word):
         return self.word_dict[word]
 
     def keys(self):
-        return self.word_dict.keys()
+        return sorted(self.word_dict.keys(), key=lambda x:len(x))
 
     def add_word(self, word):
         if ("_" not in word.word):
@@ -55,7 +60,12 @@ class Word_Dictionary():
                 self.word_dict[word.word] = []
 
     def stemmize_word(self, word):
-        pass
+        for i in range(len(word)):
+            if word[:(i + 1)] in stem_dict:
+                if word[(i + 1):] not in stem_dict[word[:(i + 1)]]:
+                    stem_dict[word[:(i + 1)]].append(word[(i + 1):])
+            else:
+                stem_dict[word[:(i + 1)]] = [word[(i + 1):]]
 
 class Word():
     def __init__(self, data, gloss, word_dict):
@@ -91,6 +101,10 @@ if __name__ == "__main__":
                     word_dict.add_word(word)
 
     for word in word_dict:
-        for concept in word_dict[word]:
-            print(concept)
+        word_dict.stemmize_word(word)
+        print(word)
+        print()
+        for stem in stem_dict.keys():
+            print(stem)
+            print(stem_dict[stem])
         break
