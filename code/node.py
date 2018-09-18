@@ -6,10 +6,39 @@ WN_DATA_TYPE = ["verb", "noun", "adv", "adj"]
 
 p_drop = 0
 
-class Word_Dictionary():
+class Concept():
     def __init__(self):
-        self.word_dict = dict()
+        pass
+
+class Stem():
+    def __init__(self):
+        pass
+
+class Stem_Dictionary():
+    def __init__(self):
+        self.stem_dict = dict()
         self.concept_dict = dict()
+
+    def __iter__(self):
+        return iter(self.stem_dict)
+
+    def __getitem__(self, stem):
+        return self.stem_dict[stem]
+
+    def keys(self):
+        return self.stem_dict.keys()
+
+    def add_stem(self, stem):
+        pass
+
+    def generate_concept(self):
+        pass
+
+class Word_Dictionary():
+    def __init__(self, stem_dict):
+        self.word_dict = dict()
+
+        self.stem_dict = stem_dict
 
     def __iter__(self):
         return iter(self.word_dict)
@@ -23,11 +52,9 @@ class Word_Dictionary():
     def add_word(self, word):
         if ("_" not in word.word):
             if (word.word not in word_dict):
-                self.word_dict[word.word] = [word]
-            else:
-                self.word_dict[word.word].append(word)
+                self.word_dict[word.word] = []
 
-    def generate_concept(self):
+    def stemmize_word(self, word):
         pass
 
 class Word():
@@ -42,12 +69,9 @@ class Word():
         self.word = data[3]
         self.gloss = gloss
 
-class Concept():
-    def __init__(self):
-        pass
-
 if __name__ == "__main__":
-    word_dict = Word_Dictionary()
+    stem_dict = Stem_Dictionary()
+    word_dict = Word_Dictionary(stem_dict=stem_dict)
 
     for data_type in WN_DATA_TYPE:
         with open(WN_DIR + "dict/data." + data_type) as f:
