@@ -29,7 +29,7 @@ class Stem_Dictionary():
         return self.stem_dict[stem]
 
     def keys(self):
-        return sorted(self.stem_dict.keys(), key=lambda x:len(x))
+        return sorted(self.stem_dict.keys(), key=lambda x:(len(x), x))
 
     def add_stem(self, stem):
         pass
@@ -37,10 +37,18 @@ class Stem_Dictionary():
     def generate_concept(self):
         pass
 
+class Word_Parser():
+    def __init__(self):
+        prob_dict = dict()
+
+    def parse(self, word):
+        pass
+
 class Word_Dictionary():
-    def __init__(self, stem_dict):
-        self.stem_dict = stem_dict
+    def __init__(self):
+        self.stem_dict = Stem_Dictionary()
         self.word_dict = dict()
+        self.prob_dict = dict()
 
     def __iter__(self):
         return iter(self.word_dict)
@@ -52,20 +60,69 @@ class Word_Dictionary():
         return self.word_dict[word]
 
     def keys(self):
-        return sorted(self.word_dict.keys(), key=lambda x:len(x))
+        return sorted(self.word_dict.keys(), key=lambda x:(len(x), x))
 
     def add_word(self, word):
-        if ("_" not in word.word):
+        if ("_" not in word.word) & ("-" not in word.word) & ("~" not in word.word):
             if (word.word not in word_dict):
                 self.word_dict[word.word] = []
 
-    def stemmize_word(self, word):
-        for i in range(len(word)):
-            if word[:(i + 1)] in stem_dict:
-                if word[(i + 1):] not in stem_dict[word[:(i + 1)]]:
-                    stem_dict[word[:(i + 1)]].append(word[(i + 1):])
+    def compute_prob(self, prefix, surffix):
+        if prefix not in self.prob_dict:
+            total = 0
+            n_match = 0
+            for word in self.word_dict:
+                if word.startswith(prefix):
+                    total += 1
+                    if word[len(prefix):] in self.word_dict:
+                        n_match += 1
+            if total > 1:
+                self.prob_dict[prefix] = n_match / total
             else:
-                stem_dict[word[:(i + 1)]] = [word[(i + 1):]]
+                self.prob_dict[prefix] = 0.0
+         
+        if surffix not in self.prob_dict:
+            total = 0
+            n_match = 0
+            for word in self.word_dict:
+                if word.endswith(surffix):
+                    total += 1
+                    if word[:-len(surffix)] in self.word_dict:
+                        n_match += 1
+            if total > 1:
+                self.prob_dict[surffix] = n_match / total
+            else:
+                self.prob_dict[surffix] = 0.0
+        
+        return
+
+    def stemmize_word(self, word):
+        stem_list = []
+
+        if len(word) == 1:
+            stem_list.append([[word], 1.0])
+            return stem_list
+
+        total_prob = 0.0
+
+        for i in range(len(word) - 1):
+            prefix = word[:(i + 1)]
+            surffix = word[(i + 1):]
+            self.compute_prob(prefix, surffix)
+
+            if (prefix in self.word_dict) & (surffix is self.word_dict):
+                stem_list.append([[prefix, surffix], self.prob_dict[prefix] * self.prob_dict[surffix]])
+                total_prob += self.prob_dict[prefix] * self.prob_dict[surffix]
+            else:
+                if (prefix in self.word_dict):
+                    stem_list.append([[prefix, "-" + surffix], self.prob_dict[surffix]])
+                    total_prob += self.prob_dict[surffix]
+
+                if (surffix in self.word_dict):
+                    stem_list.append([[prefix + "-", surffix], self.prob_dict[prefix]])
+                    total_prob += self.prob_dict[prefix]
+        stem_list.append([[word], 1.0 - total_prob])
+        return reversed(sorted(stem_list, key=lambda x:x[1]))
 
 class Word():
     def __init__(self, data, gloss, word_dict):
@@ -80,8 +137,7 @@ class Word():
         self.gloss = gloss
 
 if __name__ == "__main__":
-    stem_dict = Stem_Dictionary()
-    word_dict = Word_Dictionary(stem_dict=stem_dict)
+    word_dict = Word_Dictionary()
 
     for data_type in WN_DATA_TYPE:
         with open(WN_DIR + "dict/data." + data_type) as f:
@@ -101,10 +157,8 @@ if __name__ == "__main__":
                     word_dict.add_word(word)
 
     for word in word_dict:
-        word_dict.stemmize_word(word)
         print(word)
-        print()
-        for stem in stem_dict.keys():
-            print(stem)
-            print(stem_dict[stem])
-        break
+        for [stem, prob] in word_dict.stemmize_word(word):
+            print("\t".join(stem))
+            print(prob)
+        input()
